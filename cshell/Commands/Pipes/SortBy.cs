@@ -1,7 +1,7 @@
 ﻿using CommandLine;
 using static CShell.Commands.Operations;
 
-namespace CShell.Commands;
+namespace CShell.Commands.Pipes;
 
 [Verb("sort-by", HelpText = "Sort by the given columns, in increasing order.")]
 public sealed class SortBy : IPipeCommand

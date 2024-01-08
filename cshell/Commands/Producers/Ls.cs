@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace CShell.Commands;
+namespace CShell.Commands.Producers;
 
 [Verb("ls", HelpText = "List the filenames, sizes, and modification times of items in a directory.")]
 public sealed class Ls : IProducerCommand

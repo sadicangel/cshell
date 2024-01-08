@@ -4,7 +4,7 @@ namespace CShell;
 
 public sealed class ShellContext
 {
-    public required IAnsiConsole Console { get; init; }
-    public required string CurrentDirectory { get; set; }
+    public IAnsiConsole Console { get; } = AnsiConsole.Console;
+    public string CurrentDirectory { get => Environment.CurrentDirectory; set => Environment.CurrentDirectory = value; }
     public bool Verbose { get; set; }
 }

@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace CShell.Commands;
+namespace CShell.Commands.Producers;
 
 [Verb("ps", HelpText = "View information about system processes.")]
 public sealed class Ps : IProducerCommand

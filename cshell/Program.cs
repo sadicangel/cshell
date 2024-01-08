@@ -1,11 +1,7 @@
 ﻿using CShell;
 using Spectre.Console;
 
-var context = new ShellContext
-{
-    Console = AnsiConsole.Console,
-    CurrentDirectory = Environment.CurrentDirectory,
-};
+var context = new ShellContext();
 
 while (true)
 {
