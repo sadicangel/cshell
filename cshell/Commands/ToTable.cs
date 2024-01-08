@@ -6,9 +6,9 @@ namespace CShell.Commands;
 [Verb("table", HelpText = "Renders result as a table.")]
 public sealed class ToTable : IConsumerCommand
 {
-    public int Execute(ShellContext context, IEnumerable<Record> records)
+    public void Execute(ShellContext context, IEnumerable<Record> records)
     {
-        var table = new Table();
+        var table = new Table().BorderColor(Color.Grey);
 
         if (records.FirstOrDefault() is Record first)
         {
@@ -19,7 +19,5 @@ public sealed class ToTable : IConsumerCommand
         }
 
         context.Console.Write(table);
-
-        return 0;
     }
 }

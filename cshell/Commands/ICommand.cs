@@ -7,7 +7,7 @@ interface IProducerCommand
 
 interface IConsumerCommand
 {
-    int Execute(ShellContext context, IEnumerable<Record> records);
+    void Execute(ShellContext context, IEnumerable<Record> records);
 }
 
 interface IPipeCommand
