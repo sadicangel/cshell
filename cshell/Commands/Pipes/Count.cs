@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using CShell.DataModel;
 
 namespace CShell.Commands.Pipes;
 
@@ -6,13 +7,8 @@ namespace CShell.Commands.Pipes;
 
 public sealed class Count : IPipeCommand
 {
-    public IEnumerable<Record> Execute(ShellContext context, IEnumerable<Record> records)
+    public IEnumerable<ShellObject> Execute(ShellContext context, IEnumerable<ShellObject> objects)
     {
-        var record = new Record(new Dictionary<string, object?>
-        {
-            ["Count"] = records.Count(),
-        });
-
-        return [record];
+        return [new ShellScalar(objects.Count())];
     }
 }

@@ -1,16 +1,18 @@
-﻿namespace CShell.Commands;
+﻿using CShell.DataModel;
+
+namespace CShell.Commands;
 
 interface IProducerCommand
 {
-    IEnumerable<Record> Execute(ShellContext context);
+    IEnumerable<ShellObject> Execute(ShellContext context);
 }
 
 interface IConsumerCommand
 {
-    void Execute(ShellContext context, IEnumerable<Record> records);
+    void Execute(ShellContext context, IEnumerable<ShellObject> objects);
 }
 
 interface IPipeCommand
 {
-    IEnumerable<Record> Execute(ShellContext context, IEnumerable<Record> records);
+    IEnumerable<ShellObject> Execute(ShellContext context, IEnumerable<ShellObject> objects);
 }

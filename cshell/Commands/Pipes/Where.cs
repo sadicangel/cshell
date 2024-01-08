@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using CShell.DataModel;
 using static CShell.Commands.Operations;
 
 namespace CShell.Commands.Pipes;
@@ -15,11 +16,14 @@ public sealed class Where : IPipeCommand
     [Value(2, HelpText = "Right operand", Required = true)]
     public required string Right { get; init; }
 
-    public IEnumerable<Record> Execute(ShellContext context, IEnumerable<Record> records)
+    public IEnumerable<ShellObject> Execute(ShellContext context, IEnumerable<ShellObject> objects)
     {
+        if (objects.FirstOrDefault() is not ShellRecord first)
+            return objects;
+
         var where = CreateWhere();
 
-        return records.Where(r => where(r.GetValueOrDefault(Left), Right));
+        return objects.Cast<ShellRecord>().Where(r => where(r.GetValueOrDefault(Left).GetScalarValueOrDefault(), Right));
     }
 
     private Func<object?, object?, bool> CreateWhere()

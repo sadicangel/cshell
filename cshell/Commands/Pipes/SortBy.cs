@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using CShell.DataModel;
 using static CShell.Commands.Operations;
 
 namespace CShell.Commands.Pipes;
@@ -12,12 +13,15 @@ public sealed class SortBy : IPipeCommand
     [Option('r', "reverse", HelpText = "Reverse order", Required = false, Default = false)]
     public bool Reverse { get; init; }
 
-    public IEnumerable<Record> Execute(ShellContext context, IEnumerable<Record> records)
+    public IEnumerable<ShellObject> Execute(ShellContext context, IEnumerable<ShellObject> objects)
     {
+        if (objects.FirstOrDefault() is not ShellRecord first)
+            return objects;
+
         var comparer = !Reverse
             ? Comparer<object?>.Create(Compare)
             : Comparer<object?>.Create((l, r) => Compare(r, l));
 
-        return records.OrderBy(r => r.GetValueOrDefault(Operand), comparer);
+        return objects.Cast<ShellRecord>().OrderBy(r => r.GetValueOrDefault(Operand).GetScalarValueOrDefault(), comparer);
     }
 }

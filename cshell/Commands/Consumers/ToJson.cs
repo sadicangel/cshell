@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using CShell.DataModel;
 using Spectre.Console;
 using Spectre.Console.Json;
 using System.Text.Json;
@@ -10,9 +11,15 @@ namespace CShell.Commands.Consumers;
 
 public sealed class ToJson : IConsumerCommand
 {
-    public void Execute(ShellContext context, IEnumerable<Record> records)
+    public void Execute(ShellContext context, IEnumerable<ShellObject> objects)
     {
-        var json = JsonSerializer.Serialize(records, SourceGenerationContext.Default.IEnumerableRecord)!;
+        var json = objects.FirstOrDefault() switch
+        {
+            ShellScalar => JsonSerializer.Serialize(objects.Cast<ShellScalar>(), SourceGenerationContext.Default.IEnumerableShellScalar),
+            ShellArray => JsonSerializer.Serialize(objects.Cast<ShellArray>(), SourceGenerationContext.Default.IEnumerableShellArray),
+            ShellRecord => JsonSerializer.Serialize(objects.Cast<ShellRecord>(), SourceGenerationContext.Default.IEnumerableShellRecord),
+            _ => "{}",
+        };
         context.Console.Write(new Panel(new JsonText(json)));
     }
 }
@@ -32,7 +39,9 @@ public sealed class ToJson : IConsumerCommand
 [JsonSerializable(typeof(DateOnly))]
 [JsonSerializable(typeof(TimeSpan))]
 [JsonSerializable(typeof(TimeOnly))]
-[JsonSerializable(typeof(IEnumerable<Record>))]
+[JsonSerializable(typeof(IEnumerable<ShellScalar>))]
+[JsonSerializable(typeof(IEnumerable<ShellArray>))]
+[JsonSerializable(typeof(IEnumerable<ShellRecord>))]
 internal partial class SourceGenerationContext : JsonSerializerContext
 {
 }

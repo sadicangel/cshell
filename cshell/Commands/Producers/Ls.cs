@@ -1,19 +1,20 @@
 ﻿using CommandLine;
+using CShell.DataModel;
 
 namespace CShell.Commands.Producers;
 
 [Verb("ls", HelpText = "List the filenames, sizes, and modification times of items in a directory.")]
 public sealed class Ls : IProducerCommand
 {
-    public IEnumerable<Record> Execute(ShellContext context) => new DirectoryInfo(context.CurrentDirectory)
+    public IEnumerable<ShellObject> Execute(ShellContext context) => new DirectoryInfo(context.CurrentDirectory)
         .EnumerateFileSystemInfos()
-        .Select(e => new Record(new Dictionary<string, object?>
+        .Select(e => new ShellRecord(new Dictionary<string, ShellScalar?>
         {
-            ["Name"] = e.Name,
-            ["Type"] = e is FileInfo ? "file" : "dir",
-            ["FullName"] = e.FullName,
-            ["CreationTime"] = e.CreationTimeUtc,
-            ["LastWriteTime"] = e.LastWriteTimeUtc,
-            ["Size"] = e is FileInfo f ? f.Length : default(long?)
+            ["Name"] = new(e.Name),
+            ["Type"] = new(e is FileInfo ? "file" : "dir"),
+            ["FullName"] = new(e.FullName),
+            ["CreationTime"] = new(e.CreationTimeUtc),
+            ["LastWriteTime"] = new(e.LastWriteTimeUtc),
+            ["Size"] = new(e is FileInfo f ? f.Length : default(long?))
         }));
 }
