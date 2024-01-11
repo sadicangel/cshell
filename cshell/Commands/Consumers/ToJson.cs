@@ -11,15 +11,13 @@ namespace CShell.Commands.Consumers;
 
 public sealed class ToJson : IConsumerCommand
 {
-    public void Execute(ShellContext context, IEnumerable<ShellObject> objects)
+    public void Execute(ShellContext context, ShellObject @object)
     {
-        var json = objects.FirstOrDefault() switch
-        {
-            ShellScalar => JsonSerializer.Serialize(objects.Cast<ShellScalar>(), SourceGenerationContext.Default.IEnumerableShellScalar),
-            ShellArray => JsonSerializer.Serialize(objects.Cast<ShellArray>(), SourceGenerationContext.Default.IEnumerableShellArray),
-            ShellRecord => JsonSerializer.Serialize(objects.Cast<ShellRecord>(), SourceGenerationContext.Default.IEnumerableShellRecord),
-            _ => "{}",
-        };
+        var json = @object.Switch(
+            scalar => JsonSerializer.Serialize(scalar, SourceGenerationContext.Default.ShellScalar),
+            record => JsonSerializer.Serialize(record, SourceGenerationContext.Default.ShellRecord),
+            array => JsonSerializer.Serialize(array, SourceGenerationContext.Default.ShellArray),
+            () => "{}");
         context.Console.Write(new Panel(new JsonText(json)));
     }
 }
@@ -39,9 +37,9 @@ public sealed class ToJson : IConsumerCommand
 [JsonSerializable(typeof(DateOnly))]
 [JsonSerializable(typeof(TimeSpan))]
 [JsonSerializable(typeof(TimeOnly))]
-[JsonSerializable(typeof(IEnumerable<ShellScalar>))]
-[JsonSerializable(typeof(IEnumerable<ShellArray>))]
-[JsonSerializable(typeof(IEnumerable<ShellRecord>))]
+[JsonSerializable(typeof(ShellScalar))]
+[JsonSerializable(typeof(ShellArray))]
+[JsonSerializable(typeof(ShellRecord))]
 internal partial class SourceGenerationContext : JsonSerializerContext
 {
 }

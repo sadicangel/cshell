@@ -4,15 +4,15 @@ namespace CShell.Commands;
 
 interface IProducerCommand
 {
-    IEnumerable<ShellObject> Execute(ShellContext context);
+    ShellObject Execute(ShellContext context);
 }
 
 interface IConsumerCommand
 {
-    void Execute(ShellContext context, IEnumerable<ShellObject> objects);
+    void Execute(ShellContext context, ShellObject @object);
 }
 
 interface IPipeCommand
 {
-    IEnumerable<ShellObject> Execute(ShellContext context, IEnumerable<ShellObject> objects);
+    ShellObject Execute(ShellContext context, ShellObject @object);
 }

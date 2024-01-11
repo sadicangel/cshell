@@ -17,4 +17,36 @@ internal static class ShellExtensions
     };
 
     public static object? GetScalarValueOrDefault(this ShellObject? obj) => (obj as ShellScalar)?.Value;
+
+    public static T Switch<T>(
+        this ShellObject? obj,
+        Func<ShellScalar, T> Scalar,
+        Func<ShellRecord, T> Record,
+        Func<ShellArray, T> Array,
+        Func<T> Null)
+    {
+        return obj switch
+        {
+            ShellScalar o => Scalar(o),
+            ShellArray o => Array(o),
+            ShellRecord o => Record(o),
+            _ => Null()
+        };
+    }
+
+    public static T Switch<T>(
+        this IEnumerable<ShellObject> objects,
+        Func<IEnumerable<ShellScalar>, T> Scalars,
+        Func<IEnumerable<ShellRecord>, T> Records,
+        Func<IEnumerable<ShellArray>, T> Arrays,
+        Func<T> Empty)
+    {
+        return objects.FirstOrDefault() switch
+        {
+            ShellScalar => Scalars(objects.Cast<ShellScalar>()),
+            ShellArray => Arrays(objects.Cast<ShellArray>()),
+            ShellRecord => Records(objects.Cast<ShellRecord>()),
+            _ => Empty()
+        };
+    }
 }

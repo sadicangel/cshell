@@ -1,44 +1,16 @@
 ﻿using CommandLine;
 using CShell.DataModel;
-using static CShell.Commands.Operations;
 
 namespace CShell.Commands.Pipes;
 
 [Verb("where", HelpText = "Filter values based on a row condition.")]
-public sealed class Where : IPipeCommand
+public sealed class Where : Predicate, IPipeCommand
 {
-    [Value(0, HelpText = "Left operand", Required = true)]
-    public required string Left { get; init; }
-
-    [Value(1, HelpText = "Operator", Required = true)]
-    public required string Operator { get; init; }
-
-    [Value(2, HelpText = "Right operand", Required = true)]
-    public required string Right { get; init; }
-
-    public IEnumerable<ShellObject> Execute(ShellContext context, IEnumerable<ShellObject> objects)
+    protected override ShellObject Execute(ShellContext context, ShellObject @object, Func<object?, object?, bool> predicate)
     {
-        if (objects.FirstOrDefault() is not ShellRecord first)
-            return objects;
+        if (@object is not ShellArray array || array is not [ShellRecord first, ..])
+            return @object;
 
-        var where = CreateWhere();
-
-        return objects.Cast<ShellRecord>().Where(r => where(r.GetValueOrDefault(Left).GetScalarValueOrDefault(), Right));
-    }
-
-    private Func<object?, object?, bool> CreateWhere()
-    {
-        return Operator switch
-        {
-        // Equality
-        ['=', '='] => (l, r) => AreEqual(l, r),
-        ['!', '='] => (l, r) => !AreEqual(l, r),
-        // Comparison
-        ['>'] => (l, r) => Compare(l, r) > 0,
-        ['<'] => (l, r) => Compare(l, r) < 0,
-        ['>', '='] => (l, r) => Compare(l, r) >= 0,
-        ['<', '='] => (l, r) => Compare(l, r) <= 0,
-            _ => throw new FormatException($"Operator '{Operator}' is not valid"),
-        };
+        return new ShellArray(array.AsEnumerable().Cast<ShellRecord>().Where(r => predicate(r.GetValueOrDefault(Left).GetScalarValueOrDefault(), Right)));
     }
 }

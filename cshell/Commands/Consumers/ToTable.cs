@@ -1,6 +1,7 @@
 ﻿using CommandLine;
 using CShell.DataModel;
 using Spectre.Console;
+using Spectre.Console.Rendering;
 
 namespace CShell.Commands.Consumers;
 
@@ -8,37 +9,41 @@ namespace CShell.Commands.Consumers;
 
 public sealed class ToTable : IConsumerCommand
 {
-    public void Execute(ShellContext context, IEnumerable<ShellObject> objects)
+    public void Execute(ShellContext context, ShellObject @object)
     {
-        if (objects.FirstOrDefault() is not ShellObject first)
-        {
-            context.Console.MarkupLine("[grey i]empty[/]");
-            return;
-        }
+        var value = @object.Switch(
+            scalar => new Table().BorderColor(Color.Grey).AddColumn("Value").AddRow(scalar.ToStringSafe()),
+            record => new Table().BorderColor(Color.Grey).AddColumns(record.Keys.ToArray()).AddRow(record.Values.Select(ShellExtensions.ToStringSafe).ToArray()),
+            array => GetRenderableForCollection(array.AsEnumerable()),
+            () => new Text("empty\n", "grey"));
 
-        var table = new Table().BorderColor(Color.Grey);
+        context.Console.Write(value);
+    }
 
-        switch (first)
-        {
-            case ShellScalar o:
-                table.AddColumn("Value");
-                foreach (var obj in objects.Cast<ShellScalar>())
-                    table.AddRow(o.ToStringSafe());
-                break;
-
-            case ShellArray o:
-                table.AddColumn("Array");
-                foreach (var obj in objects.Cast<ShellArray>())
-                    table.AddRow(obj.ToStringSafe());
-                break;
-
-            case ShellRecord o:
-                table.AddColumns(o.Keys.ToArray());
-                foreach (var obj in objects.Cast<ShellRecord>())
-                    table.AddRow(obj.Values.Select(ShellExtensions.ToStringSafe).ToArray());
-                break;
-        }
-
-        context.Console.Write(table);
+    private static IRenderable GetRenderableForCollection(IEnumerable<ShellObject> objects)
+    {
+        return objects.Switch<IRenderable>(
+            scalars =>
+            {
+                var table = new Table().BorderColor(Color.Grey).AddColumn("Value");
+                foreach (var scalar in scalars)
+                    table.AddRow(scalar.ToStringSafe());
+                return table;
+            },
+            records =>
+            {
+                var table = new Table().BorderColor(Color.Grey).AddColumns(records.First().Keys.ToArray());
+                foreach (var record in records)
+                    table.AddRow(record.Values.Select(ShellExtensions.ToStringSafe).ToArray());
+                return table;
+            },
+            arrays =>
+            {
+                var table = new Table().BorderColor(Color.Grey).AddColumn("Array");
+                foreach (var array in arrays)
+                    table.AddRow(array.ToStringSafe());
+                return table;
+            },
+            () => new Text("empty\n", "grey"));
     }
 }

@@ -6,7 +6,7 @@ namespace CShell.Commands.Producers;
 [Verb("ls", HelpText = "List the filenames, sizes, and modification times of items in a directory.")]
 public sealed class Ls : IProducerCommand
 {
-    public IEnumerable<ShellObject> Execute(ShellContext context) => new DirectoryInfo(context.CurrentDirectory)
+    public ShellObject Execute(ShellContext context) => new ShellArray(new DirectoryInfo(context.CurrentDirectory)
         .EnumerateFileSystemInfos()
         .Select(e => new ShellRecord(new Dictionary<string, ShellScalar?>
         {
@@ -16,5 +16,5 @@ public sealed class Ls : IProducerCommand
             ["CreationTime"] = new(e.CreationTimeUtc),
             ["LastWriteTime"] = new(e.LastWriteTimeUtc),
             ["Size"] = new(e is FileInfo f ? f.Length : default(long?))
-        }));
+        })));
 }

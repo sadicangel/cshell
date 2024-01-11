@@ -13,15 +13,15 @@ public sealed class SortBy : IPipeCommand
     [Option('r', "reverse", HelpText = "Reverse order", Required = false, Default = false)]
     public bool Reverse { get; init; }
 
-    public IEnumerable<ShellObject> Execute(ShellContext context, IEnumerable<ShellObject> objects)
+    public ShellObject Execute(ShellContext context, ShellObject @object)
     {
-        if (objects.FirstOrDefault() is not ShellRecord first)
-            return objects;
+        if (@object is not ShellArray array || array is not [ShellRecord first, ..])
+            return @object;
 
         var comparer = !Reverse
             ? Comparer<object?>.Create(Compare)
             : Comparer<object?>.Create((l, r) => Compare(r, l));
 
-        return objects.Cast<ShellRecord>().OrderBy(r => r.GetValueOrDefault(Operand).GetScalarValueOrDefault(), comparer);
+        return new ShellArray(array.AsEnumerable().Cast<ShellRecord>().OrderBy(r => r.GetValueOrDefault(Operand).GetScalarValueOrDefault(), comparer));
     }
 }

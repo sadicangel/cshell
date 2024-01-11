@@ -9,7 +9,7 @@ public sealed class Cd : IProducerCommand
     [Value(0, HelpText = "The path to change to.", Required = true)]
     public required string Path { get; init; }
 
-    public IEnumerable<ShellObject> Execute(ShellContext context)
+    public ShellObject Execute(ShellContext context)
     {
         var path = System.IO.Path.GetFullPath(Path);
 
@@ -18,8 +18,6 @@ public sealed class Cd : IProducerCommand
 
         context.CurrentDirectory = path;
 
-        var scalar = new ShellScalar(path);
-
-        return [scalar];
+        return new ShellScalar(path);
     }
 }
