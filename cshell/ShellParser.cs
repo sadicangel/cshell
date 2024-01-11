@@ -2,6 +2,7 @@
 using CShell.Commands;
 using CShell.Commands.Consumers;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace CShell;
 
@@ -63,14 +64,14 @@ internal static class ShellParser
 
     private static IProducerCommand ParseProducerCommand(ReadOnlySpan<char> command)
     {
-        var args = command.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var args = SplitArgs(command);
         var result = Parser.ParseArguments(args, ProducerTypes);
         return result.Tag is ParserResultType.Parsed ? (IProducerCommand)result.Value : throw new ShellParserException(result.Errors);
     }
 
     private static bool TryParsePipeCommand(ReadOnlySpan<char> command, [MaybeNullWhen(false)] out IPipeCommand pipeCommand, out IEnumerable<Error> errors)
     {
-        var args = command.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var args = SplitArgs(command);
         pipeCommand = null;
         var result = Parser.ParseArguments(args, PipeTypes);
         errors = result.Errors;
@@ -87,8 +88,51 @@ internal static class ShellParser
 
     private static IConsumerCommand ParseConsumerCommand(ReadOnlySpan<char> command)
     {
-        var args = command.ToString().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var args = SplitArgs(command);
         var result = Parser.ParseArguments(args, ConsumerTypes);
         return result.Tag is ParserResultType.Parsed ? (IConsumerCommand)result.Value : throw new ShellParserException(result.Errors);
+    }
+
+    private static List<string> SplitArgs(ReadOnlySpan<char> command)
+    {
+        var arg = new StringBuilder();
+        var inDelimitedString = false;
+        var args = new List<string>();
+        foreach (var c in command)
+        {
+            switch (c)
+            {
+                case '"' when inDelimitedString && arg.Length > 0:
+                    args.Add(arg.ToString());
+                    arg.Clear();
+                    inDelimitedString = !inDelimitedString;
+                    break;
+
+                case '"':
+                    inDelimitedString = !inDelimitedString;
+                    break;
+
+                case ' ' when !inDelimitedString && arg.Length > 0:
+                    args.Add(arg.ToString());
+                    arg.Clear();
+                    break;
+
+                case ' ' when inDelimitedString:
+                    arg.Append(c);
+                    break;
+
+                default:
+                    arg.Append(c);
+                    break;
+            }
+        }
+
+        if (arg.Length > 0)
+        {
+            args.Add(arg.ToString());
+            arg.Clear();
+        }
+
+        return args;
     }
 }

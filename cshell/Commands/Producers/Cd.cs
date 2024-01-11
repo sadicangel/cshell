@@ -21,3 +21,4 @@ public sealed class Cd : IProducerCommand
         return new ShellScalar(path);
     }
 }
+

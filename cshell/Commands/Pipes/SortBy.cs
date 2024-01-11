@@ -1,6 +1,5 @@
 ﻿using CommandLine;
 using CShell.DataModel;
-using static CShell.Commands.Operations;
 
 namespace CShell.Commands.Pipes;
 
@@ -15,13 +14,11 @@ public sealed class SortBy : IPipeCommand
 
     public ShellObject Execute(ShellContext context, ShellObject @object)
     {
-        if (@object is not ShellArray array || array is not [ShellRecord first, ..])
+        if (@object is not ShellArray array)
             return @object;
 
-        var comparer = !Reverse
-            ? Comparer<object?>.Create(Compare)
-            : Comparer<object?>.Create((l, r) => Compare(r, l));
+        var comparer = !Reverse ? Operations.AscendingComparer : Operations.DescendingComparer;
 
-        return new ShellArray(array.AsEnumerable().Cast<ShellRecord>().OrderBy(r => r.GetValueOrDefault(Operand).GetScalarValueOrDefault(), comparer));
+        return new ShellArray(array.AsEnumerable().OrderBy(r => r.EvaluateExpression(Operand).GetScalarValueOrDefault(), comparer));
     }
 }

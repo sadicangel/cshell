@@ -8,12 +8,11 @@ while (true)
     try
     {
         AnsiConsole.Markup("[green]cs> [/]");
-        var input = Console.ReadLine().AsSpan();
-
-        if (input.Length == 0)
+        var input = Console.ReadLine();
+        if (String.IsNullOrWhiteSpace(input))
             continue;
 
-        if (input == "exit")
+        if (input is "exit")
             return 0;
 
         var pipeline = ShellParser.Parse(input);

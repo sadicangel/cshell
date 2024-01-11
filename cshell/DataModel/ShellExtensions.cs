@@ -18,19 +18,55 @@ internal static class ShellExtensions
 
     public static object? GetScalarValueOrDefault(this ShellObject? obj) => (obj as ShellScalar)?.Value;
 
+    public static ShellObject? EvaluateExpression(this ShellObject? obj, string expr)
+    {
+        if (expr is [])
+            return obj;
+
+        return obj.Switch(
+            scalar => null,
+            record => HandleRecord(record, expr),
+            array => HandleArray(array, expr));
+
+        static ShellObject? HandleRecord(ShellRecord record, ReadOnlySpan<char> expr)
+        {
+            if (expr is not ['$', '.', ..])
+                return null;
+
+            expr = expr[2..];
+            var end = expr.IndexOf('.');
+            if (end < 0) end = expr.Length;
+
+            return EvaluateExpression(record[expr[..end].ToString()], expr[end..].ToString());
+        }
+
+        static ShellObject? HandleArray(ShellArray array, ReadOnlySpan<char> expr)
+        {
+            if (expr is not ['$', '[', ..])
+                return null;
+
+            expr = expr[2..];
+            var end = expr.IndexOf(']');
+            if (end < 0) throw new InvalidOperationException("Missing ']'");
+            if (!int.TryParse(expr[..end], out var index))
+                return null;
+
+            return EvaluateExpression(array[index], expr[end..].ToString());
+        }
+    }
+
     public static T Switch<T>(
         this ShellObject? obj,
         Func<ShellScalar, T> Scalar,
         Func<ShellRecord, T> Record,
-        Func<ShellArray, T> Array,
-        Func<T> Null)
+        Func<ShellArray, T> Array)
     {
         return obj switch
         {
             ShellScalar o => Scalar(o),
             ShellArray o => Array(o),
             ShellRecord o => Record(o),
-            _ => Null()
+            _ => throw new UnreachableException()
         };
     }
 

@@ -14,8 +14,7 @@ public sealed class ToTable : IConsumerCommand
         var value = @object.Switch(
             scalar => new Table().BorderColor(Color.Grey).AddColumn("Value").AddRow(scalar.ToStringSafe()),
             record => new Table().BorderColor(Color.Grey).AddColumns(record.Keys.ToArray()).AddRow(record.Values.Select(ShellExtensions.ToStringSafe).ToArray()),
-            array => GetRenderableForCollection(array.AsEnumerable()),
-            () => new Text("empty\n", "grey"));
+            array => GetRenderableForCollection(array.AsEnumerable()));
 
         context.Console.Write(value);
     }

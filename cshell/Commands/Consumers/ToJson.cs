@@ -16,8 +16,7 @@ public sealed class ToJson : IConsumerCommand
         var json = @object.Switch(
             scalar => JsonSerializer.Serialize(scalar, SourceGenerationContext.Default.ShellScalar),
             record => JsonSerializer.Serialize(record, SourceGenerationContext.Default.ShellRecord),
-            array => JsonSerializer.Serialize(array, SourceGenerationContext.Default.ShellArray),
-            () => "{}");
+            array => JsonSerializer.Serialize(array, SourceGenerationContext.Default.ShellArray));
         context.Console.Write(new Panel(new JsonText(json)));
     }
 }
