@@ -20,7 +20,7 @@ internal static class ShellExtensions
 
     public static ShellObject? EvaluateExpression(this ShellObject? obj, string expr)
     {
-        if (expr is [])
+        if (expr is [] or "$")
             return obj;
 
         return obj.Switch(

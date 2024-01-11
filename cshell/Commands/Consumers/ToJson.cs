@@ -36,7 +36,7 @@ public sealed class ToJson : IConsumerCommand
 [JsonSerializable(typeof(DateOnly))]
 [JsonSerializable(typeof(TimeSpan))]
 [JsonSerializable(typeof(TimeOnly))]
-[JsonSerializable(typeof(ShellObject))]
+[JsonSerializable(typeof(ShellObject), GenerationMode = JsonSourceGenerationMode.Metadata)]
 internal partial class SourceGenerationContext : JsonSerializerContext
 {
 }

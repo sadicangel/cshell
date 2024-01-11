@@ -34,9 +34,9 @@ internal static class Operations
     {
         var operation = GetOperation(@operator);
 
-        if (left.StartsWith("$."))
+        if (left.StartsWith('$'))
         {
-            if (right.StartsWith("$."))
+            if (right.StartsWith('$'))
             {
                 return obj => operation(obj.EvaluateExpression(left).GetScalarValueOrDefault(), obj.EvaluateExpression(right).GetScalarValueOrDefault());
             }
@@ -48,7 +48,7 @@ internal static class Operations
                 return operation(l, r);
             };
         }
-        else if (right.StartsWith("$."))
+        else if (right.StartsWith('$'))
         {
             return obj =>
             {
