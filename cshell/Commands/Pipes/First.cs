@@ -27,6 +27,6 @@ public sealed class First : IPipeCommand
             _ => throw new InvalidOperationException($"Invalid expression {Left} {Operator} {Right}")
         };
 
-        return array.AsEnumerable().FirstOrDefault(predicate) ?? new ShellScalar(null);
+        return array.AsEnumerable().FirstOrDefault(predicate) ?? ShellScalar.Null;
     }
 }

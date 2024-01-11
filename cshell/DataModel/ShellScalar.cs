@@ -6,8 +6,7 @@ namespace CShell.DataModel;
 [JsonConverter(typeof(ShellScalarJsonConverter))]
 public sealed record class ShellScalar(object? Value) : ShellObject
 {
-    public ShellScalar() : this(Value: null) { }
-
+    public static readonly ShellScalar Null = new(default(object));
 }
 
 internal sealed class ShellScalarJsonConverter : JsonConverter<ShellScalar>

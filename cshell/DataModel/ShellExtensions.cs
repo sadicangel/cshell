@@ -16,40 +16,40 @@ internal static class ShellExtensions
         _ => throw new UnreachableException()
     };
 
-    public static object? GetScalarValueOrDefault(this ShellObject? obj) => (obj as ShellScalar)?.Value;
+    public static object? GetScalarValueOrDefault(this ShellObject obj) => (obj as ShellScalar)?.Value;
 
-    public static ShellObject? EvaluateExpression(this ShellObject? obj, string expr)
+    public static ShellObject EvaluateExpression(this ShellObject obj, string expr)
     {
         if (expr is [] or "$")
             return obj;
 
         return obj.Switch(
-            scalar => null,
+            scalar => ShellScalar.Null,
             record => HandleRecord(record, expr),
             array => HandleArray(array, expr));
 
-        static ShellObject? HandleRecord(ShellRecord record, ReadOnlySpan<char> expr)
+        static ShellObject HandleRecord(ShellRecord record, ReadOnlySpan<char> expr)
         {
             if (expr is not ['$', '.', ..])
-                return null;
+                return ShellScalar.Null;
 
             expr = expr[2..];
             var end = expr.IndexOf('.');
             if (end < 0) end = expr.Length;
 
-            return EvaluateExpression(record[expr[..end].ToString()], expr[end..].ToString());
+            return EvaluateExpression(record[expr[..end].ToString()] ?? ShellScalar.Null, expr[end..].ToString());
         }
 
-        static ShellObject? HandleArray(ShellArray array, ReadOnlySpan<char> expr)
+        static ShellObject HandleArray(ShellArray array, ReadOnlySpan<char> expr)
         {
             if (expr is not ['$', '[', ..])
-                return null;
+                return ShellScalar.Null;
 
             expr = expr[2..];
             var end = expr.IndexOf(']');
             if (end < 0) throw new InvalidOperationException("Missing ']'");
             if (!int.TryParse(expr[..end], out var index))
-                return null;
+                return ShellScalar.Null;
 
             return EvaluateExpression(array[index], expr[end..].ToString());
         }

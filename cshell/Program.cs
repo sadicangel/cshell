@@ -1,5 +1,12 @@
 ﻿using CShell;
 using Spectre.Console;
+using System.Globalization;
+
+// Fix dumb american datetime format.
+var culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+culture.DateTimeFormat.ShortDatePattern = "dd/MM/yyyy";
+culture.DateTimeFormat.LongTimePattern = "HH:mm:ss";
+Thread.CurrentThread.CurrentCulture = culture;
 
 var context = new ShellContext();
 
