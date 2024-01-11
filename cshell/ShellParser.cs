@@ -45,14 +45,17 @@ internal static class ShellParser
             pipes.Add(ParsePipeCommand(input[Ranges[i]]));
 
         IConsumerCommand? consumer;
-        if (TryParsePipeCommand(input[Ranges[i]], out var command, out _))
+        if (i < commandCount)
         {
-            pipes.Add(command);
-            consumer = new ToTable();
-        }
-        else if (i < commandCount)
-        {
-            consumer = ParseConsumerCommand(input[Ranges[i]]);
+            if (TryParsePipeCommand(input[Ranges[i]], out var command, out _))
+            {
+                pipes.Add(command);
+                consumer = new ToTable();
+            }
+            else
+            {
+                consumer = ParseConsumerCommand(input[Ranges[i]]);
+            }
         }
         else
         {
