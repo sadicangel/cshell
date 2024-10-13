@@ -22,7 +22,7 @@ public sealed class ToTable : IConsumerCommand
 
     private static IRenderable GetRenderableForCollection(IEnumerable<ShellObject> objects)
     {
-        var columns = new SortedSet<string>();
+        var columns = new HashSet<string>();
         var rows = new List<Dictionary<string, string>>();
 
         foreach (var @object in objects)

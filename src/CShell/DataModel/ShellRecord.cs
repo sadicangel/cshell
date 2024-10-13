@@ -15,10 +15,12 @@ public sealed record ShellRecord() : ShellObject, IReadOnlyDictionary<string, Sh
             _attributes.Add(key, value);
     }
 
+    public override object? ValueUnsafe { get => null; }
+
+
     public ShellObject this[string key] { get => _attributes[key]; }
 
     public override string ToString() => $"{{ {string.Join("; ", _attributes.Select(e => $"{e.Key} = {e.Value}"))} }}";
-
     public override ShellObject Evaluate(ReadOnlySpan<char> expression)
     {
         if (expression is [] or "$")

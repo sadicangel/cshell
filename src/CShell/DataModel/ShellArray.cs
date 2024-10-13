@@ -8,13 +8,15 @@ public sealed record class ShellArray() : ShellObject, IReadOnlyList<ShellObject
 
     public ShellArray(IEnumerable<ShellObject> objects) : this() => _objects = [.. objects];
 
+    public override object? ValueUnsafe { get => null; }
+
+
     public ShellObject this[int index] => _objects[index];
 
     public int Length => _objects.Length;
     int IReadOnlyCollection<ShellObject>.Count => Length;
 
     public override string ToString() => $"[{string.Join(", ", _objects.Select(o => o.ToString()))}]";
-
     public override ShellObject Evaluate(ReadOnlySpan<char> expression)
     {
         if (expression is not ['$', '[', .. var rest])

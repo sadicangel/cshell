@@ -8,6 +8,8 @@ namespace CShell.DataModel;
 [JsonDerivedType(typeof(ShellRecord))]
 public abstract record class ShellObject
 {
+    public abstract object? ValueUnsafe { get; }
+
     public abstract override string ToString();
 
     public abstract ShellObject Evaluate(ReadOnlySpan<char> expression);

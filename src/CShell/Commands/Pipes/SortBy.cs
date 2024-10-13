@@ -20,6 +20,6 @@ public sealed class SortBy : IPipeCommand
 
         var comparer = !Reverse ? Operations.AscendingComparer : Operations.DescendingComparer;
 
-        return new ShellArray(array.AsEnumerable().OrderBy(obj => obj.Evaluate(Operand).GetScalarValueOrDefault(), comparer));
+        return new ShellArray(array.AsEnumerable().OrderBy(obj => obj.Evaluate(Operand).ValueUnsafe, comparer));
     }
 }

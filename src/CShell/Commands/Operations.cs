@@ -38,12 +38,12 @@ internal static class Operations
         {
             if (right.StartsWith('$'))
             {
-                return obj => operation(obj.Evaluate(left).GetScalarValueOrDefault(), obj.Evaluate(right).GetScalarValueOrDefault());
+                return obj => operation(obj.Evaluate(left).ValueUnsafe, obj.Evaluate(right).ValueUnsafe);
             }
 
             return obj =>
             {
-                var l = obj.Evaluate(left).GetScalarValueOrDefault();
+                var l = obj.Evaluate(left).ValueUnsafe;
                 var r = l is not null ? Convert.ChangeType(right, l.GetType()) : null;
                 return operation(l, r);
             };
@@ -52,7 +52,7 @@ internal static class Operations
         {
             return obj =>
             {
-                var r = obj.Evaluate(right).GetScalarValueOrDefault();
+                var r = obj.Evaluate(right).ValueUnsafe;
                 var l = r is not null ? Convert.ChangeType(left, r.GetType()) : null;
                 return operation(l, r);
             };
@@ -71,10 +71,10 @@ internal static class Operations
             ['=', '='] => (l, r) => AreEqual(l, r),
             ['!', '='] => (l, r) => !AreEqual(l, r),
             // Comparison
-            ['>'] => (l, r) => Compare(l, r) > 0,
-            ['<'] => (l, r) => Compare(l, r) < 0,
             ['>', '='] => (l, r) => Compare(l, r) >= 0,
             ['<', '='] => (l, r) => Compare(l, r) <= 0,
+            ['>'] => (l, r) => Compare(l, r) > 0,
+            ['<'] => (l, r) => Compare(l, r) < 0,
                 _ => throw new FormatException($"Operator '{@operator}' is not valid"),
             };
         }
