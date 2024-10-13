@@ -9,5 +9,5 @@ namespace CShell.Commands.Pipes;
 public sealed class Count : IPipeCommand
 {
     public ShellObject Execute(ShellContext context, ShellObject @object) =>
-        new ShellScalar(@object.Switch(scalar => 1, array => array.Length, record => record.Count));
+        new ShellScalar(@object.Switch(s => 1, a => a.Length, r => r.Count));
 }

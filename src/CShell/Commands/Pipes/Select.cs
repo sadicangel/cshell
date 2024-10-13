@@ -11,7 +11,7 @@ public sealed class Select : IPipeCommand
     public required string Expression { get; init; }
 
     public ShellObject Execute(ShellContext context, ShellObject @object) => @object.Switch(
-        scalar => scalar,
-        array => new ShellArray(array.Select(e => e.Evaluate(Expression))),
-        record => record.Evaluate(Expression));
+        s => s,
+        a => new ShellArray(a.Select(e => e.Evaluate(Expression))),
+        r => r.Evaluate(Expression));
 }

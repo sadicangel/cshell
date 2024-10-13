@@ -9,11 +9,11 @@ internal readonly record struct ShellPipeline(
 {
     public void Run(ShellContext context)
     {
-        var records = Producer.Execute(context);
+        var @object = Producer.Execute(context);
 
         foreach (var pipe in Pipes)
-            records = pipe.Execute(context, records);
+            @object = pipe.Execute(context, @object);
 
-        Consumer.Execute(context, records);
+        Consumer.Execute(context, @object);
     }
 }
