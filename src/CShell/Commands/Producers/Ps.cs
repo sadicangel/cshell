@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using CommandLine;
 using CShell.DataModel;
+using CShell.Parsing;
 
 namespace CShell.Commands.Producers;
 
@@ -9,14 +10,12 @@ public sealed class Ps : IProducerCommand
 {
     public ShellObject Execute(ShellContext context) => new ShellArray(Process.GetProcesses()
         .Where(IsValidWindowsProcessId)
-        .Select(p => new ShellRecord(new Dictionary<string, ShellScalar?>()
+        .Select(p => new ShellRecord(new Dictionary<string, ShellObject>()
         {
-            ["PID"] = new(p.Id),
-            ["Name"] = new(p.ProcessName),
+            ["PID"] = new ShellScalar(p.Id),
+            ["Name"] = new ShellScalar(p.ProcessName),
         })));
 
-    private static bool IsValidWindowsProcessId(Process process)
-    {
-        return !OperatingSystem.IsWindows() || process.Id is not 0 and not 4;
-    }
+    private static bool IsValidWindowsProcessId(Process process) =>
+        !OperatingSystem.IsWindows() || process.Id is not 0 and not 4;
 }

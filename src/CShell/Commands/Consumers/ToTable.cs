@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using CShell.DataModel;
+using CShell.Parsing;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 
@@ -12,37 +13,35 @@ public sealed class ToTable : IConsumerCommand
     public void Execute(ShellContext context, ShellObject @object)
     {
         var value = @object.Switch(
-            scalar => new Table().BorderColor(Color.Grey).AddColumn("Value").AddRow(scalar.ToStringSafe()),
-            record => new Table().BorderColor(Color.Grey).AddColumns(record.Keys.ToArray()).AddRow(record.Values.Select(ShellExtensions.ToStringSafe).ToArray()),
-            array => GetRenderableForCollection(array.AsEnumerable()));
+            scalar => new Table().BorderColor(Color.Grey).AddColumn("Value").AddRow(scalar.ToString()),
+            array => GetRenderableForCollection(array.AsEnumerable()),
+            record => new Table().BorderColor(Color.Grey).AddColumns(record.Keys.ToArray()).AddRow(record.Values.Select(r => r.ToString()).ToArray()));
 
         context.Console.Write(value);
     }
 
     private static IRenderable GetRenderableForCollection(IEnumerable<ShellObject> objects)
     {
-        return objects.Switch<IRenderable>(
-            scalars =>
-            {
-                var table = new Table().BorderColor(Color.Grey).AddColumn("Value");
-                foreach (var scalar in scalars)
-                    table.AddRow(scalar.ToStringSafe());
-                return table;
-            },
-            records =>
-            {
-                var table = new Table().BorderColor(Color.Grey).AddColumns(records.First().Keys.ToArray());
-                foreach (var record in records)
-                    table.AddRow(record.Values.Select(ShellExtensions.ToStringSafe).ToArray());
-                return table;
-            },
-            arrays =>
-            {
-                var table = new Table().BorderColor(Color.Grey).AddColumn("Array");
-                foreach (var array in arrays)
-                    table.AddRow(array.ToStringSafe());
-                return table;
-            },
-            () => new Text("empty\n", "grey"));
+        var columns = new SortedSet<string>();
+        var rows = new List<Dictionary<string, string>>();
+
+        foreach (var @object in objects)
+        {
+            var row = @object.Switch(
+                s => new Dictionary<string, string> { ["Value"] = s.ToString() },
+                a => a.Select((o, i) => (Object: o, Index: i)).ToDictionary(e => e.Index.ToString(), e => e.Object.ToString()),
+                r => r.ToDictionary(e => e.Key, e => e.Value.ToString()));
+
+            columns.UnionWith(row.Keys);
+            rows.Add(row);
+        }
+
+        if (columns.Count is 0)
+            return new Text("empty\n", "grey");
+
+        var table = new Table().BorderColor(Color.Grey).AddColumns(columns.ToArray());
+        foreach (var row in rows)
+            table.AddRow(columns.Select(c => row.GetValueOrDefault(c, string.Empty)).ToArray());
+        return table;
     }
 }

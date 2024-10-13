@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace CShell;
+namespace CShell.Parsing;
 
 public sealed class ShellParserException(IEnumerable<Error> errors) : Exception(FormatErrors(errors))
 {

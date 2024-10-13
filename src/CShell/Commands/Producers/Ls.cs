@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using CShell.DataModel;
+using CShell.Parsing;
 
 namespace CShell.Commands.Producers;
 
@@ -8,13 +9,27 @@ public sealed class Ls : IProducerCommand
 {
     public ShellObject Execute(ShellContext context) => new ShellArray(new DirectoryInfo(context.CurrentDirectory)
         .EnumerateFileSystemInfos()
-        .Select(e => new ShellRecord(new Dictionary<string, ShellScalar?>
+        .Select(fs => new ShellRecord(fs switch
         {
-            ["Name"] = new(e.Name),
-            ["Type"] = new(e is FileInfo ? "file" : "dir"),
-            ["FullName"] = new(e.FullName),
-            ["CreationTime"] = new(e.CreationTimeUtc),
-            ["LastWriteTime"] = new(e.LastWriteTimeUtc),
-            ["Size"] = new(e is FileInfo f ? f.Length : default(long?))
+            FileInfo file => new Dictionary<string, ShellObject>
+            {
+                ["Name"] = new ShellScalar(fs.Name),
+                ["Type"] = new ShellScalar("file"),
+                ["FullName"] = new ShellScalar(fs.FullName),
+                ["CreationTime"] = new ShellScalar(fs.CreationTimeUtc),
+                ["LastWriteTime"] = new ShellScalar(fs.LastWriteTimeUtc),
+                ["Size"] = new ShellScalar(file.Length)
+            },
+
+            DirectoryInfo directory => new Dictionary<string, ShellObject>
+            {
+                ["Name"] = new ShellScalar(fs.Name),
+                ["Type"] = new ShellScalar("dir"),
+                ["FullName"] = new ShellScalar(fs.FullName),
+                ["CreationTime"] = new ShellScalar(fs.CreationTimeUtc),
+                ["LastWriteTime"] = new ShellScalar(fs.LastWriteTimeUtc),
+            },
+
+            _ => throw new NotSupportedException(fs.GetType().Name)
         })));
 }

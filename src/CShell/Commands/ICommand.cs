@@ -1,4 +1,5 @@
 ﻿using CShell.DataModel;
+using CShell.Parsing;
 
 namespace CShell.Commands;
 

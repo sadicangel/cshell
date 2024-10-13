@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using CShell;
+using CShell.Parsing;
 using Spectre.Console;
 
 // Fix dumb datetime format.
@@ -16,7 +16,7 @@ while (true)
     {
         AnsiConsole.Markup("[green]cs> [/]");
         var input = Console.ReadLine();
-        if (String.IsNullOrWhiteSpace(input))
+        if (string.IsNullOrWhiteSpace(input))
             continue;
 
         if (input is "exit")

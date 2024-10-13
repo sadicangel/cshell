@@ -1,15 +1,16 @@
 ﻿using CommandLine;
 using CShell.DataModel;
+using CShell.Parsing;
 
 namespace CShell.Commands.Producers;
 
-public enum ScalarType
+file enum ScalarType
 {
     i32, i64, str, date
 }
 
 [Verb("array", HelpText = "Create a 32-bit signed integer.")]
-public sealed class ArrayS : IProducerCommand
+file sealed class ArrayS : IProducerCommand
 {
     [Value(0, HelpText = "The type of values in the array.", Required = true)]
     public required ScalarType Type { get; init; }

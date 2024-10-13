@@ -4,27 +4,15 @@ using CommandLine;
 using CShell.Commands;
 using CShell.Commands.Consumers;
 
-namespace CShell;
-
-internal readonly record struct CShellPipeline(
-    IProducerCommand Producer,
-    IReadOnlyList<IPipeCommand> Pipes,
-    IConsumerCommand Consumer)
-{
-    public void Run(ShellContext context)
-    {
-        var records = Producer.Execute(context);
-
-        foreach (var pipe in Pipes)
-            records = pipe.Execute(context, records);
-
-        Consumer.Execute(context, records);
-    }
-}
+namespace CShell.Parsing;
 
 internal static class ShellParser
 {
-    private static readonly Parser s_parser = new(s => s.HelpWriter = null);
+    private static readonly Parser s_parser = new(opts =>
+    {
+        opts.HelpWriter = null;
+        opts.CaseSensitive = false;
+    });
     private static readonly Range[] s_ranges = new Range[256];
     private static readonly Type[] s_producerTypes = FindCommands<IProducerCommand>();
     private static readonly Type[] s_pipeTypes = FindCommands<IPipeCommand>();
@@ -33,7 +21,7 @@ internal static class ShellParser
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private static Type[] FindCommands<T>() => [.. typeof(T).Assembly.GetTypes().Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(T)))];
 
-    public static CShellPipeline Parse(ReadOnlySpan<char> input)
+    public static ShellPipeline Parse(ReadOnlySpan<char> input)
     {
         var commandCount = input.Split(s_ranges, '|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
@@ -62,7 +50,7 @@ internal static class ShellParser
             consumer = new ToTable();
         }
 
-        return new CShellPipeline(producer, pipes, consumer);
+        return new ShellPipeline(producer, pipes, consumer);
     }
 
     private static IProducerCommand ParseProducerCommand(ReadOnlySpan<char> command)

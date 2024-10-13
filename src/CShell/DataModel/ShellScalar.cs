@@ -1,41 +1,18 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using CShell.DataModel.Json;
 
 namespace CShell.DataModel;
 
 [JsonConverter(typeof(ShellScalarJsonConverter))]
-public sealed record class ShellScalar(object? Value) : ShellObject
+public sealed record class ShellScalar(object Value) : ShellObject
 {
-    public static readonly ShellScalar Null = new(default(object));
+    public static readonly ShellScalar Null = new(new NullValue());
+    public static readonly ShellScalar True = new(true);
+    public static readonly ShellScalar False = new(false);
+
+    public override string ToString() => Value.ToString() ?? string.Empty;
+
+    public override ShellObject Evaluate(ReadOnlySpan<char> expression) => expression is [] or "$" ? this : Null;
 }
 
-internal sealed class ShellScalarJsonConverter : JsonConverter<ShellScalar>
-{
-    public override ShellScalar? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        return new ShellScalar(reader.TokenType switch
-        {
-            JsonTokenType.String => reader.GetString(),
-            JsonTokenType.Number => GetNumber(ref reader),
-            JsonTokenType.True => true,
-            JsonTokenType.False => false,
-            JsonTokenType.Null => null,
-            _ => throw new NotImplementedException(),
-        });
-
-        static object? GetNumber(ref Utf8JsonReader reader)
-        {
-            if (reader.TryGetInt32(out var i32)) return i32;
-            if (reader.TryGetInt64(out var i64)) return i64;
-            return reader.GetDouble();
-        }
-    }
-
-    public override void Write(Utf8JsonWriter writer, ShellScalar value, JsonSerializerOptions options)
-    {
-        if (value.Value is null)
-            writer.WriteNullValue();
-        else
-            JsonSerializer.Serialize(writer, value.Value, options.GetTypeInfo(value.Value.GetType()));
-    }
-}
+file readonly record struct NullValue { public override string ToString() => "null"; }

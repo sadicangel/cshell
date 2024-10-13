@@ -38,12 +38,12 @@ internal static class Operations
         {
             if (right.StartsWith('$'))
             {
-                return obj => operation(obj.EvaluateExpression(left).GetScalarValueOrDefault(), obj.EvaluateExpression(right).GetScalarValueOrDefault());
+                return obj => operation(obj.Evaluate(left).GetScalarValueOrDefault(), obj.Evaluate(right).GetScalarValueOrDefault());
             }
 
             return obj =>
             {
-                var l = obj.EvaluateExpression(left).GetScalarValueOrDefault();
+                var l = obj.Evaluate(left).GetScalarValueOrDefault();
                 var r = l is not null ? Convert.ChangeType(right, l.GetType()) : null;
                 return operation(l, r);
             };
@@ -52,7 +52,7 @@ internal static class Operations
         {
             return obj =>
             {
-                var r = obj.EvaluateExpression(right).GetScalarValueOrDefault();
+                var r = obj.Evaluate(right).GetScalarValueOrDefault();
                 var l = r is not null ? Convert.ChangeType(left, r.GetType()) : null;
                 return operation(l, r);
             };

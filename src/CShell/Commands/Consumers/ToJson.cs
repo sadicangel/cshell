@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using CommandLine;
 using CShell.DataModel;
+using CShell.Parsing;
 using Spectre.Console;
 using Spectre.Console.Json;
 

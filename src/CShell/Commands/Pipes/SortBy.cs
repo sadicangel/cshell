@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using CShell.DataModel;
+using CShell.Parsing;
 
 namespace CShell.Commands.Pipes;
 
@@ -19,6 +20,6 @@ public sealed class SortBy : IPipeCommand
 
         var comparer = !Reverse ? Operations.AscendingComparer : Operations.DescendingComparer;
 
-        return new ShellArray(array.AsEnumerable().OrderBy(r => r.EvaluateExpression(Operand).GetScalarValueOrDefault(), comparer));
+        return new ShellArray(array.AsEnumerable().OrderBy(obj => obj.Evaluate(Operand).GetScalarValueOrDefault(), comparer));
     }
 }

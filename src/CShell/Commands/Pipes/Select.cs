@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using CShell.DataModel;
+using CShell.Parsing;
 
 namespace CShell.Commands.Pipes;
 
@@ -9,11 +10,8 @@ public sealed class Select : IPipeCommand
     [Value(0, HelpText = "Select expression", Required = true)]
     public required string Expression { get; init; }
 
-    public ShellObject Execute(ShellContext context, ShellObject @object)
-    {
-        return @object.Switch(
-            scalar => scalar,
-            record => record.EvaluateExpression(Expression),
-            array => new ShellArray(array.Select(e => e.EvaluateExpression(Expression))));
-    }
+    public ShellObject Execute(ShellContext context, ShellObject @object) => @object.Switch(
+        scalar => scalar,
+        array => new ShellArray(array.Select(e => e.Evaluate(Expression))),
+        record => record.Evaluate(Expression));
 }

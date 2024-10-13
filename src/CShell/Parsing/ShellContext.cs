@@ -1,6 +1,6 @@
 ﻿using Spectre.Console;
 
-namespace CShell;
+namespace CShell.Parsing;
 
 public sealed class ShellContext
 {
