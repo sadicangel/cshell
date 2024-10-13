@@ -24,37 +24,37 @@ internal readonly record struct CShellPipeline(
 
 internal static class ShellParser
 {
-    private static readonly Parser Parser = new(s => s.HelpWriter = null);
-    private static readonly Range[] Ranges = new Range[256];
-    private static readonly Type[] ProducerTypes = FindCommands<IProducerCommand>();
-    private static readonly Type[] PipeTypes = FindCommands<IPipeCommand>();
-    private static readonly Type[] ConsumerTypes = FindCommands<IConsumerCommand>();
+    private static readonly Parser s_parser = new(s => s.HelpWriter = null);
+    private static readonly Range[] s_ranges = new Range[256];
+    private static readonly Type[] s_producerTypes = FindCommands<IProducerCommand>();
+    private static readonly Type[] s_pipeTypes = FindCommands<IPipeCommand>();
+    private static readonly Type[] s_consumerTypes = FindCommands<IConsumerCommand>();
 
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private static Type[] FindCommands<T>() => [.. typeof(T).Assembly.GetTypes().Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(T)))];
 
     public static CShellPipeline Parse(ReadOnlySpan<char> input)
     {
-        var commandCount = input.Split(Ranges, '|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var commandCount = input.Split(s_ranges, '|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         var i = 0;
-        var producer = ParseProducerCommand(input[Ranges[i++]]);
+        var producer = ParseProducerCommand(input[s_ranges[i++]]);
 
         var pipes = new List<IPipeCommand>(commandCount);
         for (; i < commandCount - 1; ++i)
-            pipes.Add(ParsePipeCommand(input[Ranges[i]]));
+            pipes.Add(ParsePipeCommand(input[s_ranges[i]]));
 
         IConsumerCommand? consumer;
         if (i < commandCount)
         {
-            if (TryParsePipeCommand(input[Ranges[i]], out var command, out _))
+            if (TryParsePipeCommand(input[s_ranges[i]], out var command, out _))
             {
                 pipes.Add(command);
                 consumer = new ToTable();
             }
             else
             {
-                consumer = ParseConsumerCommand(input[Ranges[i]]);
+                consumer = ParseConsumerCommand(input[s_ranges[i]]);
             }
         }
         else
@@ -68,7 +68,7 @@ internal static class ShellParser
     private static IProducerCommand ParseProducerCommand(ReadOnlySpan<char> command)
     {
         var args = SplitArgs(command);
-        var result = Parser.ParseArguments(args, ProducerTypes);
+        var result = s_parser.ParseArguments(args, s_producerTypes);
         return result.Tag is ParserResultType.Parsed ? (IProducerCommand)result.Value : throw new ShellParserException(result.Errors);
     }
 
@@ -76,7 +76,7 @@ internal static class ShellParser
     {
         var args = SplitArgs(command);
         pipeCommand = null;
-        var result = Parser.ParseArguments(args, PipeTypes);
+        var result = s_parser.ParseArguments(args, s_pipeTypes);
         errors = result.Errors;
         if (result.Tag is ParserResultType.Parsed)
         {
@@ -92,7 +92,7 @@ internal static class ShellParser
     private static IConsumerCommand ParseConsumerCommand(ReadOnlySpan<char> command)
     {
         var args = SplitArgs(command);
-        var result = Parser.ParseArguments(args, ConsumerTypes);
+        var result = s_parser.ParseArguments(args, s_consumerTypes);
         return result.Tag is ParserResultType.Parsed ? (IConsumerCommand)result.Value : throw new ShellParserException(result.Errors);
     }
 

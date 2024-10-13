@@ -57,32 +57,32 @@ internal static class ShellExtensions
 
     public static T Switch<T>(
         this ShellObject? obj,
-        Func<ShellScalar, T> Scalar,
-        Func<ShellRecord, T> Record,
-        Func<ShellArray, T> Array)
+        Func<ShellScalar, T> scalar,
+        Func<ShellRecord, T> record,
+        Func<ShellArray, T> array)
     {
         return obj switch
         {
-            ShellScalar o => Scalar(o),
-            ShellArray o => Array(o),
-            ShellRecord o => Record(o),
+            ShellScalar o => scalar(o),
+            ShellArray o => array(o),
+            ShellRecord o => record(o),
             _ => throw new UnreachableException()
         };
     }
 
     public static T Switch<T>(
         this IEnumerable<ShellObject> objects,
-        Func<IEnumerable<ShellScalar>, T> Scalars,
-        Func<IEnumerable<ShellRecord>, T> Records,
-        Func<IEnumerable<ShellArray>, T> Arrays,
-        Func<T> Empty)
+        Func<IEnumerable<ShellScalar>, T> scalars,
+        Func<IEnumerable<ShellRecord>, T> records,
+        Func<IEnumerable<ShellArray>, T> arrays,
+        Func<T> empty)
     {
         return objects.FirstOrDefault() switch
         {
-            ShellScalar => Scalars(objects.Cast<ShellScalar>()),
-            ShellArray => Arrays(objects.Cast<ShellArray>()),
-            ShellRecord => Records(objects.Cast<ShellRecord>()),
-            _ => Empty()
+            ShellScalar => scalars(objects.Cast<ShellScalar>()),
+            ShellArray => arrays(objects.Cast<ShellArray>()),
+            ShellRecord => records(objects.Cast<ShellRecord>()),
+            _ => empty()
         };
     }
 }

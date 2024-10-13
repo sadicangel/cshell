@@ -6,7 +6,7 @@ public sealed class ShellParserException(IEnumerable<Error> errors) : Exception(
 {
     public IEnumerable<Error> Errors { get; } = errors;
 
-    private static string FormatErrors(IEnumerable<Error> errors) => String.Join('\n', errors.Select(FormatError));
+    private static string FormatErrors(IEnumerable<Error> errors) => string.Join('\n', errors.Select(FormatError));
     private static string FormatError(Error error)
     {
         switch (error.Tag)

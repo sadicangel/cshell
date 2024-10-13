@@ -9,7 +9,7 @@ public sealed record ShellRecord() : ShellObject, IReadOnlyDictionary<string, Sh
 
     public ShellRecord(IEnumerable<KeyValuePair<string, ShellScalar?>> attributes) : this()
     {
-        if (attributes.TryGetNonEnumeratedCount(out int count))
+        if (attributes.TryGetNonEnumeratedCount(out var count))
             _attributes.EnsureCapacity(count);
         foreach (var (key, value) in attributes)
             _attributes.Add(key, value);
