@@ -1,8 +1,8 @@
-﻿using CommandLine;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
+using CommandLine;
 using CShell.Commands;
 using CShell.Commands.Consumers;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace CShell;
 

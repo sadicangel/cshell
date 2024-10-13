@@ -1,9 +1,9 @@
-﻿using CommandLine;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using CommandLine;
 using CShell.DataModel;
 using Spectre.Console;
 using Spectre.Console.Json;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace CShell.Commands.Consumers;
 

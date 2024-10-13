@@ -1,6 +1,6 @@
-﻿using CShell;
+﻿using System.Globalization;
+using CShell;
 using Spectre.Console;
-using System.Globalization;
 
 // Fix dumb datetime format.
 var culture = (CultureInfo)CultureInfo.CurrentCulture.Clone();

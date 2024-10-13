@@ -1,6 +1,6 @@
-﻿using CommandLine;
+﻿using System.Diagnostics;
+using CommandLine;
 using CShell.DataModel;
-using System.Diagnostics;
 
 namespace CShell.Commands.Producers;
 
