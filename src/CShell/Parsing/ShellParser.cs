@@ -12,6 +12,7 @@ internal static class ShellParser
     {
         opts.HelpWriter = null;
         opts.CaseSensitive = false;
+        opts.CaseInsensitiveEnumValues = true;
     });
     private static readonly Range[] s_ranges = new Range[256];
     private static readonly Type[] s_producerTypes = FindCommands<IProducerCommand>();
